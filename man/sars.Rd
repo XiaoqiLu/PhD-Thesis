@@ -7,13 +7,13 @@
 sars(states, actions, rewards, states_next)
 }
 \arguments{
-\item{states}{a matrix, the number of rows equals sample size}
+\item{states}{a numeric matrix for states, each row for each time step.}
 
-\item{actions}{a matrix, the number of rows equals sample size}
+\item{actions}{a numeric matrix for actions.}
 
-\item{rewards}{a column vector, the number of rows equals sample size}
+\item{rewards}{a numeric column vector for rewards.}
 
-\item{states_next}{a matrix, the number of rows equals sample size}
+\item{states_next}{a numeric matrix for next states.}
 }
 \value{
 a SARS object (\code{class = "sars"})
@@ -43,4 +43,12 @@ some computational advantages.
 \note{
 For 1D arguments (e.g. reward as a real number), a column vector (\eqn{n}-by-\eqn{1} matrix)
 is expected.
+}
+\examples{
+states <- matrix(c(1, 2, 3, 4), 2, 2)
+actions <- matrix(c(1, 0), 2, 1)
+rewards <- matrix(c(1, 2), 2, 1)
+states_next <- matrix(c(2, 3, 4, 5), 2, 2)
+ss <- sars(states, actions, rewards, states_next)
+ss
 }
