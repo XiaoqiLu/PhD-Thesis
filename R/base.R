@@ -111,4 +111,3 @@ trajectory <- function(observations, actions) {
     n = n
   ), class = "trajectory")
 }
-
