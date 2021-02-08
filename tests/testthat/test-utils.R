@@ -1,3 +1,8 @@
+test_that(".logsumexp() works", {
+  x <- 1:3
+  expect_equal(.logsumexp(x), log(sum(exp(x))))
+})
+
 test_that("greedy() works for vector input", {
   expect_equal(greedy(1:5), 5)
   expect_equal(greedy(c(2, -1, 3, 7, 5)), 4)
@@ -73,6 +78,19 @@ test_that("epsilon_greedy() works for matrix input", {
     levels = seq_along(p1)
   )),
   p = p, rescale.p = TRUE
+  )
+  if (test$p.value < significance_level) warning(paste("reject null at significance level =", significance_level))
+  expect_true(TRUE)
+})
+
+test_that("gibbs() works for vector input", {
+  expect_equal(gibbs(1:5, temperature = 1e-8), 5)
+  significance_level <- 0.01
+  n <- 10000
+  test <- chisq.test(table(factor(replicate(n, gibbs(1:5, temperature = 1e8)),
+    levels = 1:5
+  )),
+  p = rep(0.2, 5)
   )
   if (test$p.value < significance_level) warning(paste("reject null at significance level =", significance_level))
   expect_true(TRUE)

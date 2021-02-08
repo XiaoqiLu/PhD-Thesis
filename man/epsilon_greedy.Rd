@@ -19,3 +19,7 @@ an integer vector for chosen action indexes
 \description{
 \code{epsilon_greedy()} is a utility function that performs "epsilon-greedy" actions.
 }
+\examples{
+epsilon_greedy(c(2, 1, 3, 7, 5))
+epsilon_greedy(matrix(c(1, 2, 2, 1), 2, 2, byrow = TRUE), epsilon = 0.2)
+}

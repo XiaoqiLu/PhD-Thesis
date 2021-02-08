@@ -17,3 +17,7 @@ an integer vector for chosen action indexes
 \code{random()} is a utility function that returns randomly picked action indexes, with
 probabilities determined by input values.
 }
+\examples{
+random(c(2, 1, 3, 7, 5))
+random(matrix(c(1, 2, 2, 1), 2, 2, byrow = TRUE))
+}
