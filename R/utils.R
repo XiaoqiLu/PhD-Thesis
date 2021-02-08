@@ -120,7 +120,8 @@ epsilon_greedy <- function(values, epsilon = 0.1) {
 #' gibbs(matrix(c(1, 2, 2, 1), 2, 2, byrow = TRUE), temperature = 0.01)
 gibbs <- function(values, temperature = 1.0) {
   if (is.vector(values)) {
-    return(random(exp((values - max(values)) / temperature)))
+    scaled_values <- values / temperature
+    return(random(exp(scaled_values - .logsumexp(scaled_values))))
   }
   if (is.matrix(values)) {
     return(apply(values, 1, gibbs, temperature = temperature))
