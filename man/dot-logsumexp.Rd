@@ -19,4 +19,3 @@ the shifting trick to increase numerical stability.
 \examples{
 .logsumexp(1:3)
 }
-\keyword{internal}

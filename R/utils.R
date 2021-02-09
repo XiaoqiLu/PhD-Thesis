@@ -9,8 +9,6 @@
 #' @return LogSumExp of x
 #' @export
 #'
-#' @keywords internal
-#'
 #' @examples
 #' .logsumexp(1:3)
 .logsumexp <- function(x) {
