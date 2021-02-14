@@ -14,8 +14,6 @@ Observe(x)
 }
 \arguments{
 \item{x}{environment-like object}
-
-\item{...}{extra arguments}
 }
 \value{
 an observation

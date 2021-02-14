@@ -132,7 +132,6 @@ Env <- function(internal_state = NULL, rng_state = .Random.seed) {
 #' `Observe()` is a generic method that aims to extract an observation from an object.
 #'
 #' @param x environment-like object
-#' @param ... extra arguments
 #'
 #' @return an observation
 #' @export
