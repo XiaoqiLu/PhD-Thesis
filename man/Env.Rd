@@ -4,7 +4,7 @@
 \alias{Env}
 \title{Environment Object}
 \usage{
-Env(internal_state = NULL, rng_state = .Random.seed)
+Env(internal_state = 0, rng_state = NULL)
 }
 \arguments{
 \item{internal_state}{the internal state ("everything is Markov")}
@@ -12,11 +12,16 @@ Env(internal_state = NULL, rng_state = .Random.seed)
 \item{rng_state}{the RNG state for non-deterministic evolution}
 }
 \value{
-an environment object (\code{class = "env"})
+an environment object (\code{class = "Env"})
 }
 \description{
-Environment Object
+The function \code{Env()} creates an environment object.
 }
-\note{
-This is an abstract class, and should not be used directly.
+\details{
+This is an abstract class, and should not be used directly. The purpose of this
+class is to provide a recommended template for developers. Standard methods include
+\code{Observe}, \code{Seed}, \code{Step}, and \code{Reset}.
+}
+\examples{
+Env(1)
 }

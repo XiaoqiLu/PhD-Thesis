@@ -2,18 +2,15 @@
 % Please edit documentation in R/base.R
 \name{Observe}
 \alias{Observe}
-\alias{Observe.default}
 \alias{Observe.Env}
-\title{Observe}
+\title{Observe from Environment}
 \usage{
 Observe(x)
-
-\method{Observe}{default}(x)
 
 \method{Observe}{Env}(x)
 }
 \arguments{
-\item{x}{environment-like object}
+\item{x}{an environment-like object}
 }
 \value{
 an observation
@@ -23,13 +20,10 @@ an observation
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{default}: Default behavior (error)
-
 \item \code{Env}: Internal state from an environment object
 }}
 
-\note{
-\code{Observe()} is not meant to be used directly on an environment object. For developers,
-it is best practice to define an inheritance of environment class, then define
-corresponding methods.
+\examples{
+ev <- Env(1)
+Observe(ev)
 }

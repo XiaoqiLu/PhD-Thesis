@@ -1,6 +1,6 @@
-cartpole <- function(constants = list()) {
+CartPole <- function(setting = list()) {
   # environment setup
-  cons <- list(gravity = 9.8, mass_cart = 1.0, mass_pole = 0.1, half_length_pole = 0.5, force = 10.0)
+  cons <- list(gravity = 9.8, mass_cart = 1.0, mass_pole = 0.1, length_pole = 1.0, force = 10.0, time_delta = 0.02)
   names_cons <- names(cons)
   names_constants <- names(constants)
   cons[names_constants] <- constants
@@ -15,6 +15,5 @@ cartpole <- function(constants = list()) {
   # internal state of cart-pole
   state <- NULL
 
-  structure(list(state = state, constants = constants, rng_state = rng_state), class = "cartpole")
+  structure(list(internal_state, rng_state = rng_state), class = c("CartPole", "Env"))
 }
-

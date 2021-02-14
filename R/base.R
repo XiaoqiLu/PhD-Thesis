@@ -114,43 +114,45 @@ Traj <- function(observations, actions) {
 
 #' Environment Object
 #'
+#' @description
+#' The function `Env()` creates an environment object.
+#'
 #' @param internal_state the internal state ("everything is Markov")
 #' @param rng_state the RNG state for non-deterministic evolution
 #'
-#' @return an environment object (`class = "env"`)
+#' @details
+#' This is an abstract class, and should not be used directly. The purpose of this
+#' class is to provide a recommended template for developers. Standard methods include
+#' `Observe`, `Seed`, `Step`, and `Reset`.
+#'
+#' @return an environment object (`class = "Env"`)
 #' @export
 #'
-#' @note
-#' This is an abstract class, and should not be used directly.
-Env <- function(internal_state = NULL, rng_state = .Random.seed) {
+#' @examples
+#' Env(1)
+Env <- function(internal_state = 0, rng_state = NULL) {
+  if (is.null(rng_state)) {
+    if (!exists(".Random.seed")) set.seed(NULL)
+    rng_state <- .Random.seed
+  }
   structure(list(internal_state = internal_state, rng_state = rng_state), class = "Env")
 }
 
-#' Observe
+#' Observe from Environment
 #'
 #' @description
 #' `Observe()` is a generic method that aims to extract an observation from an object.
 #'
-#' @param x environment-like object
+#' @param x an environment-like object
 #'
 #' @return an observation
 #' @export
 #'
-#' @note
-#' `Observe()` is not meant to be used directly on an environment object. For developers,
-#' it is best practice to define an inheritance of environment class, then define
-#' corresponding methods.
-#'
-#'
 #' @examples
+#' ev <- Env(1)
+#' Observe(ev)
 Observe <- function(x) {
   UseMethod("Observe", x)
-}
-
-#' @describeIn Observe Default behavior (error)
-#' @export
-Observe.default <- function(x) {
-  stop("default method not defined")
 }
 
 #' @describeIn Observe Internal state from an environment object
@@ -159,14 +161,80 @@ Observe.Env <- function(x) {
   return(x$internal_state)
 }
 
+#' Set Seed for Environment
+#'
+#' @description
+#' `Seed()` is a generic method that aims to set seed for an object.
+#'
+#' @param x an environment-like object
+#' @param seed an integer for `set.seed()`
+#'
+#' @return the environment-like object with seed set
+#' @export
+#'
+#' @examples
+#' ev <- Env()
+#' ev <- Seed(ev, 100)
 Seed <- function(x, seed = NULL) {
   UseMethod("Seed", x)
 }
 
+#' @describeIn Seed Set seed for an environment object, changing its `rng_state`
+#' @export
 Seed.Env <- function(x, seed = NULL) {
   current_state <- .Random.seed
   withr::defer(.Random.seed <<- current_state)
   set.seed(seed)
   x$rng_state <- .Random.seed
+  return(x)
+}
+
+#' Evolve the Environment
+#'
+#' @description
+#' `Step()` is a generic method that aims to evolve one step for an object.
+#'
+#' @param x an environment-like object
+#' @param action an action from agent
+#'
+#' @return the environment-like object with seed set
+#' @export
+#'
+#' @examples
+#' ev <- Env()
+#' ev <- Step(ev, 2e5)
+Step <- function(x, action) {
+  UseMethod("Step", x)
+}
+
+#' @describeIn Step Evolve one step for an environment object, changing its `internal_state`
+#' @export
+Step.Env <- function(x, action) {
+  x$internal_state <- x$internal_state + action + stats::rnorm(1)
+  return(x)
+}
+
+#' Reset the Environment
+#'
+#' @description
+#' `Reset()` is a generic method that aims to reset an object.
+#'
+#' @param x an environment-like object
+#'
+#' @return the environment-like object with seed set
+#' @export
+#'
+#' @examples
+#' ev <- Env()
+#' ev <- Step(ev, 2e5)
+#' ev <- Reset(ev)
+Reset <- function(x) {
+  UseMethod("Reset", x)
+}
+
+#' @describeIn Reset Reset for an environment object, changing its `internal_state`
+#' @export
+Reset.Env <- function(x) {
+  x$internal_state <- x$internal_state * 0 + stats::rnorm(1)
   return(x)
 }

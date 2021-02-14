@@ -64,3 +64,39 @@ test_that("Traj() gives error if length is not compatible", {
   actions <- list(-1, 1, 1, 0, -1)
   expect_error(Traj(observations, actions), "`observations` should have one more elements than `actions`")
 })
+
+test_that("Env() works", {
+  expect_s3_class(Env(), "Env")
+})
+
+test_that("Observe() and Observe.Env() works", {
+  expect_error(Observe(1))
+  expect_equal(Observe(Env(1)), 1)
+})
+
+test_that("Seed() and Seed.Env() works", {
+  expect_error(Seed(1))
+  ev <- Env()
+  set.seed(5)
+  x <- rnorm(10)
+  set.seed(5)
+  ev <- Seed(ev, 5)
+  ev <- Step(ev, 10)
+  expect_equal(ev$internal_state, 10 + x[1])
+  expect_equal(rnorm(9), x[2:10])
+})
+
+test_that("Step() and Step.Env() works", {
+  expect_error(Step(1))
+  ev <- Env()
+  ev <- Step(ev, 2e5)
+  expect_true(ev$internal_state > 1e5)
+})
+
+test_that("Reset() and Reset.Env() works", {
+  expect_error(Reset(1))
+  ev <- Env()
+  ev <- Step(ev, 2e5)
+  ev <- Reset(ev)
+  expect_true(ev$internal_state < 1e5)
+})
