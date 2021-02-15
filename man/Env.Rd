@@ -4,7 +4,7 @@
 \alias{Env}
 \title{Environment Object}
 \usage{
-Env(internal_state = 0, rng_state = NULL)
+Env(internal_state = 0, rng_state = .Random.seed)
 }
 \arguments{
 \item{internal_state}{the internal state ("everything is Markov")}

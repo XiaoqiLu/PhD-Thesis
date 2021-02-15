@@ -50,24 +50,33 @@ SARS <- function(states, actions, rewards, states_next) {
 
   # determine sample size from reward (always 1D)
   if (ncol(rewards) > 1) {
-    if (nrow(rewards) > 1) stop("size of `rewards` is wrong, expecting column vector")
+    if (nrow(rewards) > 1) {
+      stop("size of `rewards` is wrong, expecting column vector")
+    }
     warning("`rewards` is transposed to column vector")
     rewards <- t(rewards)
   }
   n <- nrow(rewards)
 
   # check sizes of other inputs
-  if ((nrow(states) != n) || (nrow(actions) != n) || (nrow(states_next) != n)) stop("inconsistent number of rows")
-  if (ncol(states) != ncol(states_next)) stop("inconsistent number of columns")
+  if ((nrow(states) != n) ||
+    (nrow(actions) != n) ||
+    (nrow(states_next) != n)) {
+    stop("inconsistent number of rows")
+  }
+  if (ncol(states) != ncol(states_next)) {
+    stop("inconsistent number of columns")
+  }
 
-  structure(list(
-    states = states,
-    actions = actions,
-    rewards = rewards,
-    states_next = states_next,
-    n = n
-  ),
-  class = "SARS"
+  structure(
+    list(
+      states = states,
+      actions = actions,
+      rewards = rewards,
+      states_next = states_next,
+      n = n
+    ),
+    class = "SARS"
   )
 }
 
@@ -98,18 +107,26 @@ SARS <- function(states, actions, rewards, states_next) {
 #' tj <- Traj(observations, actions)
 #' tj
 Traj <- function(observations, actions) {
-  if (!is.list(observations)) stop("`observations` should be a list")
-  if (!is.list(actions)) stop("`actions` should be a list")
+  if (!is.list(observations)) {
+    stop("`observations` should be a list")
+  }
+  if (!is.list(actions)) {
+    stop("`actions` should be a list")
+  }
 
   # determine sample size from actions
   n <- length(actions)
-  if (length(observations) != n + 1) stop("`observations` should have one more elements than `actions`")
+  if (length(observations) != n + 1) {
+    stop("`observations` should have one more elements than `actions`")
+  }
 
   structure(list(
     observations = observations,
     actions = actions,
     n = n
-  ), class = "Traj")
+  ),
+  class = "Traj"
+  )
 }
 
 #' Environment Object
@@ -130,12 +147,10 @@ Traj <- function(observations, actions) {
 #'
 #' @examples
 #' Env(1)
-Env <- function(internal_state = 0, rng_state = NULL) {
-  if (is.null(rng_state)) {
-    if (!exists(".Random.seed")) set.seed(NULL)
-    rng_state <- .Random.seed
-  }
-  structure(list(internal_state = internal_state, rng_state = rng_state), class = "Env")
+Env <- function(internal_state = 0, rng_state = .Random.seed) {
+  structure(list(internal_state = internal_state, rng_state = rng_state),
+    class = "Env"
+  )
 }
 
 #' Observe from Environment
@@ -182,9 +197,12 @@ Seed <- function(x, seed = NULL) {
 #' @describeIn Seed Set seed for an environment object, changing its `rng_state`
 #' @export
 Seed.Env <- function(x, seed = NULL) {
-  current_state <- .Random.seed
-  withr::defer(.Random.seed <<- current_state)
+  global_rng_state <- .Random.seed
+  withr::defer(.Random.seed <<- global_rng_state)
+  # .Random.seed <<- x$rng_state
+
   set.seed(seed)
+
   x$rng_state <- .Random.seed
   return(x)
 }
@@ -210,7 +228,13 @@ Step <- function(x, action) {
 #' @describeIn Step Evolve one step for an environment object, changing its `internal_state`
 #' @export
 Step.Env <- function(x, action) {
+  global_rng_state <- .Random.seed
+  withr::defer(.Random.seed <<- global_rng_state)
+  .Random.seed <<- x$rng_state
+
   x$internal_state <- x$internal_state + action + stats::rnorm(1)
+
+  x$rng_state <- .Random.seed
   return(x)
 }
 
@@ -235,6 +259,12 @@ Reset <- function(x) {
 #' @describeIn Reset Reset for an environment object, changing its `internal_state`
 #' @export
 Reset.Env <- function(x) {
+  global_rng_state <- .Random.seed
+  withr::defer(.Random.seed <<- global_rng_state)
+  .Random.seed <<- x$rng_state
+
   x$internal_state <- x$internal_state * 0 + stats::rnorm(1)
+
+  x$rng_state <- .Random.seed
   return(x)
 }
