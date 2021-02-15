@@ -23,12 +23,13 @@ test_that("Random() works for vector input", {
   n <- 10000
   p_raw <- 1:5
   p <- p_raw / sum(p_raw)
-  test <- chisq.test(table(factor(replicate(n, Random(p_raw)),
-    levels = seq_along(p_raw)
-  )),
-  p = p
-  )
-  if (test$p.value < significance_level) warning(paste("reject null at significance level =", significance_level))
+  test <-
+    chisq.test(table(factor(replicate(n, Random(
+      p_raw
+    )), levels = seq_along(p_raw))), p = p)
+  if (test$p.value < significance_level) {
+    warning(paste("reject null at significance level =", significance_level))
+  }
   expect_true(TRUE)
 })
 
@@ -38,12 +39,20 @@ test_that("Random() works for matrix input", {
   p1 <- 1:5
   p2 <- 5:1
   p <- ((p1 / sum(p1)) + (p2 / sum(p2))) / 2
-  test <- chisq.test(table(factor(as.vector(replicate(n, Random(matrix(c(p1, p2), 2, length(p1), byrow = TRUE)))),
+  test <-
+    chisq.test(table(factor(as.vector(
+      replicate(n, Random(matrix(
+        c(p1, p2), 2, length(p1),
+        byrow = TRUE
+      )))
+    ),
     levels = seq_along(p1)
-  )),
-  p = p, rescale.p = TRUE
-  )
-  if (test$p.value < significance_level) warning(paste("reject null at significance level =", significance_level))
+    )),
+    p = p, rescale.p = TRUE
+    )
+  if (test$p.value < significance_level) {
+    warning(paste("reject null at significance level =", significance_level))
+  }
   expect_true(TRUE)
 })
 
@@ -55,12 +64,16 @@ test_that("EpsilonGreedy() works for vector input", {
   p <- rep(eps / length(p_raw), length(p_raw))
   p[which.max(p_raw)] <- p[which.max(p_raw)] + (1 - eps)
   expect_equal(p, c(0.02, 0.02, 0.02, 0.02, 0.92))
-  test <- chisq.test(table(factor(replicate(n, EpsilonGreedy(p_raw, eps)),
-    levels = seq_along(p_raw)
-  )),
-  p = p, rescale.p = TRUE
-  )
-  if (test$p.value < significance_level) warning(paste("reject null at significance level =", significance_level))
+  test <-
+    chisq.test(table(factor(
+      replicate(n, EpsilonGreedy(p_raw, eps)),
+      levels = seq_along(p_raw)
+    )),
+    p = p, rescale.p = TRUE
+    )
+  if (test$p.value < significance_level) {
+    warning(paste("reject null at significance level =", significance_level))
+  }
   expect_true(TRUE)
 })
 
@@ -74,12 +87,20 @@ test_that("EpsilonGreedy() works for matrix input", {
   p[which.max(p1)] <- p[which.max(p1)] + (1 - eps) / 2
   p[which.max(p2)] <- p[which.max(p2)] + (1 - eps) / 2
   expect_equal(p, c(0.47, 0.02, 0.02, 0.02, 0.47))
-  test <- chisq.test(table(factor(as.vector(replicate(n, EpsilonGreedy(matrix(c(p1, p2), 2, length(p1), byrow = TRUE), eps))),
+  test <-
+    chisq.test(table(factor(as.vector(
+      replicate(n, EpsilonGreedy(matrix(
+        c(p1, p2), 2, length(p1),
+        byrow = TRUE
+      ), eps))
+    ),
     levels = seq_along(p1)
-  )),
-  p = p, rescale.p = TRUE
-  )
-  if (test$p.value < significance_level) warning(paste("reject null at significance level =", significance_level))
+    )),
+    p = p, rescale.p = TRUE
+    )
+  if (test$p.value < significance_level) {
+    warning(paste("reject null at significance level =", significance_level))
+  }
   expect_true(TRUE)
 })
 
@@ -87,11 +108,16 @@ test_that("Gibbs() works for vector input", {
   expect_equal(Gibbs(1:5, temperature = 1e-8), 5)
   significance_level <- 0.01
   n <- 10000
-  test <- chisq.test(table(factor(replicate(n, Gibbs(1:5, temperature = 1e8)),
+  test <-
+    chisq.test(table(factor(replicate(
+      n, Gibbs(1:5, temperature = 1e8)
+    ),
     levels = 1:5
-  )),
-  p = rep(0.2, 5)
-  )
-  if (test$p.value < significance_level) warning(paste("reject null at significance level =", significance_level))
+    )),
+    p = rep(0.2, 5)
+    )
+  if (test$p.value < significance_level) {
+    warning(paste("reject null at significance level =", significance_level))
+  }
   expect_true(TRUE)
 })

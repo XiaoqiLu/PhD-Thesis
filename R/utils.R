@@ -81,7 +81,9 @@ Random <- function(values) {
 #' EpsilonGreedy(matrix(c(1, 2, 2, 1), 2, 2, byrow = TRUE), epsilon = 0.2)
 EpsilonGreedy <- function(values, epsilon = 0.1) {
   if (is.vector(values)) {
-    return(ifelse(stats::runif(1) < epsilon, Random(rep(1, length(values))), Greedy(values)))
+    return(ifelse(stats::runif(1) < epsilon, Random(rep(
+      1, length(values)
+    )), Greedy(values)))
   }
   if (is.matrix(values)) {
     return(apply(values, 1, EpsilonGreedy, epsilon = epsilon))
@@ -119,7 +121,9 @@ EpsilonGreedy <- function(values, epsilon = 0.1) {
 Gibbs <- function(values, temperature = 1.0) {
   if (is.vector(values)) {
     scaled_values <- values / temperature
-    return(Random(exp(scaled_values - LogSumExp(scaled_values))))
+    return(Random(exp(
+      scaled_values - LogSumExp(scaled_values)
+    )))
   }
   if (is.matrix(values)) {
     return(apply(values, 1, Gibbs, temperature = temperature))
