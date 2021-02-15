@@ -107,7 +107,7 @@ test_that("Step.Env() works", {
   x <- stats::rnorm(1)
   expect_equal(ev$rng_state, global_rng_state)
   expect_equal(ev2$internal_state, x)
-  expect_equal(ev2$rng_state[1:5], .Random.seed[1:5])
+  expect_equal(ev2$rng_state, .Random.seed)
 })
 
 test_that("Reset.Env() works", {

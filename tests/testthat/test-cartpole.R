@@ -1,3 +1,12 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+test_that("CarPole() and its methods work", {
+  cp <- CartPole()
+  expect_s3_class(cp, "CartPole")
+  expect_equal(Observe(cp), rep(0, 4))
+  cp <- Seed(cp, 1)
+  set.seed(1)
+  expect_equal(cp$rng_state, .Random.seed)
+  cp <- Step(cp, 1)
+  expect_vector(cp$internal_state, ptype = numeric(), size = 4)
+  cp <- Reset(cp)
+  expect_true(all(abs(cp$internal_state) <= 0.05))
 })
