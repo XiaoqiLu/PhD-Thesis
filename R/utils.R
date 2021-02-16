@@ -130,3 +130,80 @@ Gibbs <- function(values, temperature = 1.0) {
   }
   stop("values should be either a vector or a matrix")
 }
+
+#' Cumulative Reward
+#'
+#' @description
+#' `CumReward()` is a utility function that computes cumulative reward for discounted
+#' MDP.
+#'
+#' @param rewards a numeric vector of reward sequence
+#' @param discount a numeric number between 0 and 1
+#'
+#' @return a numeric number for cumulative reward
+#' @export
+#'
+#' @examples
+#' CumReward(c(1, 1, 0, 1), 0.9)
+CumReward <- function(rewards, discount) {
+  sum(rewards * discount^(seq_along(rewards) - 1))
+}
+
+#' Polynomial Basis
+#'
+#' @description
+#' `Poly()` is a utility function for polynomial transform.
+#'
+#' @param x a data matrix, where rows are observations and columns are dimensions.
+#' @param degree degree of polynomial.
+#' @param interaction_only if `TRUE`, only interactions (products of distinct features)
+#' are produced.
+#' @param include_bias if `TRUE`, include a column of ones
+#'
+#' @return transformed matrix
+#' @export
+#'
+#' @examples
+#' x <- cbind(c(0, 1, 0, 1), 1 : 4)
+#' Poly(x, degree = 2)
+Poly <- function(x, degree=1, interaction_only=TRUE, include_bias=TRUE){
+  n <- nrow(x)
+  m <- ncol(x)
+  if (include_bias){
+    z <- matrix(1, n, 1)
+  } else{
+    z <- NULL
+  }
+  .Power <- function(idx){
+    return(apply(x[, idx, drop = FALSE], 1, prod))
+  }
+  for (d in 1 : degree){
+    combs <- arrangements::combinations(m, d, replace = !interaction_only)
+    z <- cbind(z, matrix(apply(combs, 1, .Power), nrow = n))
+  }
+  return(z)
+}
+
+#' Row-Wise Kronecker
+#'
+#' @description
+#' `RowWiseKronecker()` is a row-wise Kronecker utility function for feature engineering.
+#'
+#' @param x the first data matrix
+#' @param y the second data matrix, should have the same number of rows as `x`
+#'
+#' @return transformed matrix
+#' @export
+#'
+#' @examples
+#' x <- cbind(rep(1, 3), 1 : 3)
+#' y <- matrix(c(1, 0,
+#'               0, 1,
+#'               1, 1), 3, 2, byrow = TRUE)
+#'  RowWiseKronecker(x, y)
+
+RowWiseKronecker <- function(x, y){
+  nx <- ncol(x)
+  ny <- ncol(y)
+  return(x[, rep(seq(nx), times = ny), drop = FALSE] * y[, rep(seq(ny), each = nx), drop = FALSE])
+}

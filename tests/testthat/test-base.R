@@ -82,19 +82,19 @@ test_that("Traj() gives error if length is not compatible", {
 
 test_that("Env() works", {
   global_rng_state <- .Random.seed
-  expect_s3_class(Env(1), "Env")
-  expect_equal(Env(1)$internal_state, 1)
-  expect_equal(Env(1)$rng_state, global_rng_state)
+  expect_s3_class(Env(internal_state = 1), "Env")
+  expect_equal(Env(internal_state = 1)$internal_state, 1)
+  expect_equal(Env(internal_state = 1)$rng_state, global_rng_state)
 })
 
 test_that("Observe.Env() works", {
-  expect_equal(Observe(Env(1)), 1)
+  expect_equal(Observe(Env(internal_state = 1)), 1)
 })
 
 test_that("Seed.Env() works", {
   set.seed(1)
   global_rng_state <- .Random.seed
-  ev <- Seed(Env(1), 1)
+  ev <- Seed(Env(internal_state = 1), 1)
   expect_equal(ev$rng_state, global_rng_state)
   expect_equal(.Random.seed, global_rng_state)
 })
@@ -102,7 +102,7 @@ test_that("Seed.Env() works", {
 test_that("Step.Env() works", {
   set.seed(1)
   global_rng_state <- .Random.seed
-  ev <- Env(0)
+  ev <- Env(internal_state = 0)
   ev2 <- Step(ev, 0)
   x <- stats::rnorm(1)
   expect_equal(ev$rng_state, global_rng_state)
@@ -111,7 +111,7 @@ test_that("Step.Env() works", {
 })
 
 test_that("Reset.Env() works", {
-  ev <- Env(0)
+  ev <- Env(internal_state = 0)
   ev <- Step(ev, 2e5)
   ev <- Reset(ev)
   expect_true(ev$internal_state < 1e5)

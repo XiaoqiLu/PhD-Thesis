@@ -121,3 +121,26 @@ test_that("Gibbs() works for vector input", {
   }
   expect_true(TRUE)
 })
+
+test_that("CumReward() works", {
+  expect_equal(CumReward(c(1, 1, 0, 1), 0.9), 2.629)
+})
+
+test_that("Poly() works", {
+  x <- cbind(c(0, 1, 0, 1), 1 : 4)
+  expect_equal(Poly(x, degree = 1, interaction_only = FALSE, include_bias = FALSE), x)
+  expect_equal(Poly(x, degree = 1, interaction_only = TRUE, include_bias = FALSE), x)
+  expect_equal(Poly(x, degree = 1, include_bias = TRUE), cbind(1, x))
+  expect_equal(Poly(x, degree = 2, interaction_only = TRUE), cbind(1, x, x[, 1] * x[, 2]))
+  expect_equal(Poly(x, degree = 2, interaction_only = FALSE), cbind(1, x, x[, 1]^2, x[, 1] * x[, 2], x[, 2]^2))
+})
+
+test_that("RowWiseKronecker() works", {
+  x <- cbind(rep(1, 3), 1 : 3)
+  y <- matrix(c(1, 0,
+                0, 1,
+                1, 1), 3, 2, byrow = TRUE)
+  expect_equal(RowWiseKronecker(x, y), matrix(c(1, 1, 0, 0,
+                                                0, 0, 1, 2,
+                                                1, 3, 1, 3), 3, 4, byrow = TRUE))
+})
