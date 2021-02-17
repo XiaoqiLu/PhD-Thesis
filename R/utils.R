@@ -27,6 +27,8 @@ LogSumExp <- function(x) {
 #' @return an integer vector for chosen action indexes
 #' @export
 #'
+#' @family value-based action functions
+#'
 #' @examples
 #' Greedy(c(2, 1, 3, 7, 5))
 #' Greedy(matrix(c(1, 2, 2, 1), 2, 2, byrow = TRUE))
@@ -50,6 +52,8 @@ Greedy <- function(values) {
 #'
 #' @return an integer vector for chosen action indexes
 #' @export
+#'
+#' @family value-based action functions
 #'
 #' @examples
 #' Random(c(2, 1, 3, 7, 5))
@@ -76,6 +80,8 @@ Random <- function(values) {
 #' @return an integer vector for chosen action indexes
 #' @export
 #'
+#' @family value-based action functions
+#'
 #' @examples
 #' EpsilonGreedy(c(2, 1, 3, 7, 5))
 #' EpsilonGreedy(matrix(c(1, 2, 2, 1), 2, 2, byrow = TRUE), epsilon = 0.2)
@@ -101,6 +107,8 @@ EpsilonGreedy <- function(values, epsilon = 0.1) {
 #'
 #' @return an integer vector for chosen action indexes
 #' @export
+#'
+#' @family value-based action functions
 #'
 #' @details
 #' The Gibbs (or Boltzmann) distribution has p.d.f. of the following form
@@ -206,4 +214,89 @@ RowWiseKronecker <- function(x, y){
   nx <- ncol(x)
   ny <- ncol(y)
   return(x[, rep(seq(nx), times = ny), drop = FALSE] * y[, rep(seq(ny), each = nx), drop = FALSE])
+}
+
+#' Radial Kernels
+#'
+#' @description
+#' Utility functions for radial kernels.
+#'
+#' @describeIn Gaussian \eqn{\exp(- r^2)}
+#'
+#' @param r a positive numeric object
+#' @param scale a positive number for scaling
+#'
+#' @return an object of the same size of `r`
+#' @export
+#'
+#' @examples
+#' Gaussian(0 : 6, scale = 2)
+Gaussian <- function(r, scale = 1) {
+  z <- r / scale
+  exp(- z^2)
+}
+
+#' @describeIn Gaussian \eqn{\sqrt{1 + r^2}}
+#' @export
+Multiquadric <- function(r, scale = 1) {
+  z <- r / scale
+  sqrt(1 + z^2)
+}
+
+#' @describeIn Gaussian \eqn{1 / (1 + r^2)}
+#' @export
+InverseQuadratic <- function(r, scale = 1) {
+  z <- r / scale
+  1 / (1 + z^2)
+}
+
+#' @describeIn Gaussian \eqn{1 / \sqrt{1 + r^2}}
+#' @export
+InverseMultiquadric <- function(r, scale = 1) {
+  z <- r / scale
+  1 / sqrt(1 + z^2)
+}
+
+#' @describeIn Gaussian \eqn{\exp(- 1 / (1 - r^2)))} when \eqn{r < 1}, and \eqn{0} otherwise.
+#' Note that it is not scaled (`Bump(0)` < 1) and it is compactly supported.
+#' @export
+Bump <- function(r, scale = 1) {
+  z <- r / scale
+  (z < 1) * exp(- 1 / (1 - z^2))
+}
+
+#' Radial Basis Function
+#'
+#' @description
+#' `RBF()` is a utility function for RBF transform.
+#'
+#' @param x a data matrix, where rows are observations and columns are dimensions.
+#' @param centers a matrix for cluster centers
+#' @param Kernel radial functions
+#' @param scale scale parameter, or bandwidth
+#' @param include_bias if `TRUE`, include a column of ones
+#'
+#' @return transformed matrix
+#' @export
+#'
+#' @seealso \code{\link{Gaussian}}
+#'
+#' @examples
+#' RBF(matrix(1:12, 12, 1), matrix(c(3, 9), 2, 1))
+RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias=TRUE) {
+  n <- nrow(x)
+  m <- ncol(x)
+  k <- nrow(centers)
+
+  phi <- matrix(NA, n, k)
+  for (j in 1 : k) {
+    phi[, j] <- apply(x - matrix(centers[j, ], n, m, byrow = TRUE), 1,
+                      function(z){Kernel(sqrt(sum(z^2)), scale = scale)})
+  }
+
+  if (include_bias) {
+    phi <- cbind(1, phi)
+  }
+
+  return(phi)
 }

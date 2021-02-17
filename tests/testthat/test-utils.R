@@ -144,3 +144,21 @@ test_that("RowWiseKronecker() works", {
                                                 0, 0, 1, 2,
                                                 1, 3, 1, 3), 3, 4, byrow = TRUE))
 })
+
+test_that("Radial Kernels work", {
+  expect_equal(Gaussian(c(0, 2), scale = 2), c(1, exp(-1)))
+  expect_equal(Multiquadric(c(0, 2), scale = 2), c(1, sqrt(2)))
+  expect_equal(InverseQuadratic(c(0, 2), scale = 2), c(1, 1 / 2))
+  expect_equal(InverseMultiquadric(c(0, 2), scale = 2), c(1, 1 / sqrt(2)))
+  expect_equal(Bump(c(0, 1, 2, 4), scale = 2), c(exp(-1), exp(- 4 / 3), 0, 0))
+})
+
+test_that("RBF() works", {
+  expect_equal(RBF(matrix(c(0, 1, 3, 4), 4, 1),
+                   matrix(c(0.5, 3.5), 2, 1),
+                   Kernel = Bump, scale = 2, include_bias = FALSE),
+               matrix(c(exp(- 16 / 15), 0,
+                        exp(- 16 / 15), 0,
+                        0, exp(- 16 / 15),
+                        0, exp(- 16 / 15)), 4, 2, byrow = TRUE))
+})

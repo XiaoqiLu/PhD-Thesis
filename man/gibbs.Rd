@@ -35,3 +35,10 @@ thus lower values have higher chances of being sampled.
 Gibbs(c(2, 1, 3, 7, 5))
 Gibbs(matrix(c(1, 2, 2, 1), 2, 2, byrow = TRUE), temperature = 0.01)
 }
+\seealso{
+Other value-based action functions: 
+\code{\link{EpsilonGreedy}()},
+\code{\link{Greedy}()},
+\code{\link{Random}()}
+}
+\concept{value-based action functions}

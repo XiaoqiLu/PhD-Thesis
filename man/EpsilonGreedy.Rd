@@ -23,3 +23,10 @@ an integer vector for chosen action indexes
 EpsilonGreedy(c(2, 1, 3, 7, 5))
 EpsilonGreedy(matrix(c(1, 2, 2, 1), 2, 2, byrow = TRUE), epsilon = 0.2)
 }
+\seealso{
+Other value-based action functions: 
+\code{\link{Gibbs}()},
+\code{\link{Greedy}()},
+\code{\link{Random}()}
+}
+\concept{value-based action functions}

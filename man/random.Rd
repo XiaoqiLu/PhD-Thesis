@@ -21,3 +21,10 @@ probabilities determined by input values.
 Random(c(2, 1, 3, 7, 5))
 Random(matrix(c(1, 2, 2, 1), 2, 2, byrow = TRUE))
 }
+\seealso{
+Other value-based action functions: 
+\code{\link{EpsilonGreedy}()},
+\code{\link{Gibbs}()},
+\code{\link{Greedy}()}
+}
+\concept{value-based action functions}
