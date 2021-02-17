@@ -24,7 +24,9 @@ transformed matrix
 \code{RBF()} is a utility function for RBF transform.
 }
 \examples{
-RBF(matrix(1:12, 12, 1), matrix(c(3, 9), 2, 1))
+x <- matrix(rnorm(20), 10, 2)
+centers <- kmeans(x, 2)$centers
+RBF(x, centers)
 }
 \seealso{
 \code{\link{Gaussian}}

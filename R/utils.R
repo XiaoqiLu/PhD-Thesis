@@ -282,7 +282,9 @@ Bump <- function(r, scale = 1) {
 #' @seealso \code{\link{Gaussian}}
 #'
 #' @examples
-#' RBF(matrix(1:12, 12, 1), matrix(c(3, 9), 2, 1))
+#' x <- matrix(rnorm(20), 10, 2)
+#' centers <- kmeans(x, 2)$centers
+#' RBF(x, centers)
 RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias=TRUE) {
   n <- nrow(x)
   m <- ncol(x)
