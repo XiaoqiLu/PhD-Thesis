@@ -130,3 +130,62 @@ GradientBEM <- function(theta, phis, discount){
   g <- t(discount * phi_next - phis$phi) %*% delta / phis$n
   return(g)
 }
+
+#' @export
+BatchGradientQ <- function(phis, discount, method="FQI", loss=NULL, lambda=0, alpha=1,
+                           theta=NULL, learning_rate=1.0, max_iter=1000, tol=1e-3, accelerate=TRUE){
+  Gradient <- switch(method,
+                     "FQI" = function(theta){return(GradientFQI(theta, phis, discount))},
+                     "GGQ" = function(theta){return(GradientGGQ(theta, phis, discount))},
+                     "BEM" = function(theta){return(GradientBEM(theta, phis, discount))}
+  )
+  if (is.null(loss)){
+    loss <- switch(method,
+                   "FQI" = "MSPBE",
+                   "GGQ" = "MSPBE",
+                   "BEM" = "MSBE",
+    )
+  }
+  Loss <- switch(loss,
+                 MSPBE = function(theta){return(MSPBE(theta, phis, discount))},
+                 MSBE = function(theta){return(MSBE(theta, phis, discount))}
+  )
+  if (is.null(theta)){
+    theta <- matrix(0, ncol(phis$phi), 1)
+  }
+
+  n_iter <- 0
+  value <- Inf
+  step_size <- learning_rate
+  momentum <- 0 * theta
+  t_acc <- 0
+  convergence <- 1 # maxit reached
+  while (n_iter < max_iter){
+    n_iter <- n_iter + 1
+    theta_prev <- theta
+    value_prev <- value
+    if (accelerate){
+      t_acc <- (1 + sqrt(1 + 4 * t_acc^2)) / 2
+      weight_acc <- (t_acc - 1) / (t_acc + 1)
+    } else{
+      weight_acc <- 0
+    }
+    theta_acc <- theta + weight_acc * momentum
+    g_acc <- Gradient(theta_acc)
+    theta <- ProximalElastic(theta_acc - step_size * g_acc,
+                             step_size * lambda,
+                             alpha)
+    momentum <- theta - theta_prev
+    value <- Loss(theta)
+    if (sqrt(sum(momentum^2)) > 1 / tol){
+      convergence <- 2 # diverged
+      break
+    } else if (abs(value - value_prev) < tol * (abs(value_prev) + tol)){
+      convergence <- 0 # converged
+      break
+    }
+  }
+
+  return(list(theta = theta, value = value, method = method, loss = loss,
+              n_iter = n_iter, convergence = convergence))
+}

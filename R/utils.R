@@ -274,7 +274,7 @@ InverseMultiquadric <- function(r, scale = 1) {
 #' @export
 Bump <- function(r, scale = 1) {
   z <- r / scale
-  (z < 1) * exp(- 1 / (1 - z^2))
+  ifelse(z < 1, exp(- 1 / (1 - z^2)), 0)
 }
 
 #' Radial Basis Function
