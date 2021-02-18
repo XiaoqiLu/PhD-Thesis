@@ -33,7 +33,7 @@ test_that("SARS() gives error if rewards can not be converted to column vector",
   states_next <- matrix(c(2, 3, 4, 5), 2, 2)
   expect_error(
     SARS(states, actions, rewards, states_next),
-    "size of `rewards` is wrong, expecting column vector"
+    "`rewards` should be a column vector"
   )
 })
 
@@ -78,6 +78,28 @@ test_that("Traj() gives error if length is not compatible", {
     Traj(observations, actions),
     "`observations` should have one more elements than `actions`"
   )
+})
+
+test_that("Traj2SARS() works", {
+  observations <- list(0, -1, -1, 0, 1, 1)
+  actions <- list(-1, 1, 1, 0, -1)
+  traj <- Traj(observations, actions)
+  Interpreter <- function(actions, observations) {
+    n <- length(actions)
+    if (n > 0) {
+      state <- c(observations[[n]], observations[[n + 1]])
+      action <- actions[[n]]
+      reward <- 1 - state[2]^2
+    } else {
+      state <- action <- reward <- NULL
+    }
+    return(list(state = state, action = action, reward = reward))
+  }
+  sars <- Traj2SARS(traj, Interpreter, skip = 1)
+  expect_s3_class(sars, "SARS")
+  expect_equal(sars$states[2, ], c(-1, -1))
+  expect_equal(sars$actions[2, ], 1)
+  expect_equal(as.vector(sars$rewards), c(0, 1, 0, 0))
 })
 
 test_that("Env() works", {

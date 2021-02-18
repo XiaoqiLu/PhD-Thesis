@@ -51,7 +51,7 @@ SARS <- function(states, actions, rewards, states_next) {
   # determine sample size from reward (always 1D)
   if (ncol(rewards) > 1) {
     if (nrow(rewards) > 1) {
-      stop("size of `rewards` is wrong, expecting column vector")
+      stop("`rewards` should be a column vector")
     }
     warning("`rewards` is transposed to column vector")
     rewards <- t(rewards)
@@ -127,6 +127,67 @@ Traj <- function(observations, actions) {
   ),
   class = "Traj"
   )
+}
+
+#' Convert Trajectory to SARS
+#'
+#' @description
+#' The function `Traj2SARS()` converts a trajectory object to a SARS object.
+#'
+#' @param traj a trajectory object (`class = "Traj"`).
+#' @param Interpreter an interpreter function, see details.
+#' @param skip number of steps to skip over
+#'
+#' @details
+#' The interpreter function `Interpreter(actions, observations)` takes the history
+#' information up to certain time step, and outputs a list of (state, action, reward).
+#' Specifically, the history information contains partial trajectory:
+#' \deqn{O_1, A_1, O_2, A_2, \ldots, O_t, A_t, O_{t+1}}
+#'
+#' @return a SARS object (`class = "SARS"`)
+#' @export
+#'
+#' @examples
+#' observations <- list(0, -1, -1, 0, 1, 1)
+#' actions <- list(-1, 1, 1, 0, -1)
+#' traj <- Traj(observations, actions)
+#' Interpreter <- function(actions, observations) {
+#'   n <- length(actions)
+#'   if (n > 0) {
+#'     state <- c(observations[[n]], observations[[n + 1]])
+#'     action <- actions[[n]]
+#'     reward <- 1 - state[2]^2
+#'   } else {
+#'     state <- action <- reward <- NULL
+#'   }
+#'   return(list(state = state, action = action, reward = reward))
+#' }
+#' Traj2SARS(traj, Interpreter, skip = 1)
+Traj2SARS <- function(traj, Interpreter, skip = 0) {
+  if (!inherits(traj, "Traj")) {
+    stop("`traj` should be a `Traj` object")
+  }
+  if (skip >= traj$n) {
+    warning("no data for interpretation, returning NULL")
+    return(NULL)
+  }
+
+  state_reward_action <- Interpreter(traj$actions[seq_len(skip)],
+                                     traj$observations[seq_len(skip + 1)])
+  states_all <- state_reward_action$state
+  actions <- rewards <- NULL
+  for (i in (skip + 1) : traj$n) {
+    state_reward_action <- Interpreter(traj$actions[seq_len(i)],
+                                       traj$observations[seq_len(i + 1)])
+    states_all <- rbind(states_all, state_reward_action$state)
+    rewards <- rbind(rewards, state_reward_action$reward)
+    actions <- rbind(actions, state_reward_action$action)
+  }
+  n <- traj$n - skip
+  SARS(states_all[1 : n, , drop = FALSE],
+       actions,
+       rewards,
+       states_all[2 : (n + 1), , drop = FALSE])
 }
 
 #' Environment Object

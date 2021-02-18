@@ -175,6 +175,9 @@ CumReward <- function(rewards, discount) {
 #' x <- cbind(c(0, 1, 0, 1), 1 : 4)
 #' Poly(x, degree = 2)
 Poly <- function(x, degree=1, interaction_only=TRUE, include_bias=TRUE){
+  if (!is.matrix(x)) {
+    stop("`x` should be a matrix")
+  }
   n <- nrow(x)
   m <- ncol(x)
   if (include_bias){
@@ -211,6 +214,15 @@ Poly <- function(x, degree=1, interaction_only=TRUE, include_bias=TRUE){
 #'  RowWiseKronecker(x, y)
 
 RowWiseKronecker <- function(x, y){
+  if (!is.matrix(x)) {
+    stop("`x` should be a matrix")
+  }
+  if (!is.matrix(y)) {
+    stop("`y` should be a matrix")
+  }
+  if (nrow(x) != nrow(y)) {
+    stop("`x` and `y` should have the same number of rows")
+  }
   nx <- ncol(x)
   ny <- ncol(y)
   return(x[, rep(seq(nx), times = ny), drop = FALSE] * y[, rep(seq(ny), each = nx), drop = FALSE])
@@ -286,6 +298,15 @@ Bump <- function(r, scale = 1) {
 #' centers <- kmeans(x, 2)$centers
 #' RBF(x, centers)
 RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias=TRUE) {
+  if (!is.matrix(x)) {
+    stop("`x` should be a matrix")
+  }
+  if (!is.matrix(centers)) {
+    stop("`centers` should be a matrix")
+  }
+  if (ncol(x) != ncol(centers)) {
+    stop("`x` and `centers` should have the same number of columns")
+  }
   n <- nrow(x)
   m <- ncol(x)
   k <- nrow(centers)
