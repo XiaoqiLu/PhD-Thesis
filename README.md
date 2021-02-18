@@ -9,6 +9,8 @@
 
 The goal of rqlearn is to …
 
+\[THE FOLLOWING IS STILL TEMPLATE, NEEDS MODIFICATION\]
+
 ## Installation
 
 You can install the released version of rqlearn from

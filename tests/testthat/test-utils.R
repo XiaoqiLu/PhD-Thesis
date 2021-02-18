@@ -162,3 +162,12 @@ test_that("RBF() works", {
                         0, exp(- 16 / 15),
                         0, exp(- 16 / 15)), 4, 2, byrow = TRUE))
 })
+
+test_that("Soft() works", {
+  expect_equal(Soft(c(-1, 0, 2, 3), lambda = 1), c(0, 0, 1, 2))
+})
+
+# test_that("ProximalElastic() works", {
+#   expect_equal(ProximalElastic(c(-1, 0, 2, 3), lambda = 1, alpha = 1), c(0, 0, 1, 2))
+#   expect_equal(ProximalElastic(c(-1, 0, 2, 3), lambda = 1, alpha = 0), c(-1, 0, 2, 3) / 2)
+# })
