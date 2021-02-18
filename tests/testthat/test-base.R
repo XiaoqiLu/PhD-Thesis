@@ -88,12 +88,11 @@ test_that("Traj2SARS() works", {
     n <- length(actions)
     if (n > 0) {
       state <- c(observations[[n]], observations[[n + 1]])
-      action <- actions[[n]]
       reward <- 1 - state[2]^2
     } else {
-      state <- action <- reward <- NULL
+      state <- reward <- NULL
     }
-    return(list(state = state, action = action, reward = reward))
+    return(list(state = state, reward = reward))
   }
   sars <- Traj2SARS(traj, Interpreter, skip = 1)
   expect_s3_class(sars, "SARS")

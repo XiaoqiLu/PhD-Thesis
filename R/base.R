@@ -140,8 +140,8 @@ Traj <- function(observations, actions) {
 #'
 #' @details
 #' The interpreter function `Interpreter(actions, observations)` takes the history
-#' information up to certain time step, and outputs a list of (state, action, reward).
-#' Specifically, the history information contains partial trajectory:
+#' information up to certain time step, and outputs a list of (state, reward). Specifically,
+#' the history information is partial trajectory:
 #' \deqn{O_1, A_1, O_2, A_2, \ldots, O_t, A_t, O_{t+1}}
 #'
 #' @return a SARS object (`class = "SARS"`)
@@ -152,15 +152,14 @@ Traj <- function(observations, actions) {
 #' actions <- list(-1, 1, 1, 0, -1)
 #' traj <- Traj(observations, actions)
 #' Interpreter <- function(actions, observations) {
-#'   n <- length(actions)
-#'   if (n > 0) {
-#'     state <- c(observations[[n]], observations[[n + 1]])
-#'     action <- actions[[n]]
-#'     reward <- 1 - state[2]^2
-#'   } else {
-#'     state <- action <- reward <- NULL
-#'   }
-#'   return(list(state = state, action = action, reward = reward))
+#' n <- length(actions)
+#' if (n > 0) {
+#'   state <- c(observations[[n]], observations[[n + 1]])
+#'   reward <- 1 - state[2]^2
+#' } else {
+#'   state <- reward <- NULL
+#' }
+#' return(list(state = state, reward = reward))
 #' }
 #' Traj2SARS(traj, Interpreter, skip = 1)
 Traj2SARS <- function(traj, Interpreter, skip = 0) {
@@ -172,16 +171,16 @@ Traj2SARS <- function(traj, Interpreter, skip = 0) {
     return(NULL)
   }
 
-  state_reward_action <- Interpreter(traj$actions[seq_len(skip)],
+  state_reward <- Interpreter(traj$actions[seq_len(skip)],
                                      traj$observations[seq_len(skip + 1)])
-  states_all <- state_reward_action$state
+  states_all <- state_reward$state
   actions <- rewards <- NULL
   for (i in (skip + 1) : traj$n) {
-    state_reward_action <- Interpreter(traj$actions[seq_len(i)],
+    state_reward <- Interpreter(traj$actions[seq_len(i)],
                                        traj$observations[seq_len(i + 1)])
-    states_all <- rbind(states_all, state_reward_action$state)
-    rewards <- rbind(rewards, state_reward_action$reward)
-    actions <- rbind(actions, state_reward_action$action)
+    states_all <- rbind(states_all, state_reward$state)
+    rewards <- rbind(rewards, state_reward$reward)
+    actions <- rbind(actions, traj$actions[[i]])
   }
   n <- traj$n - skip
   SARS(states_all[1 : n, , drop = FALSE],

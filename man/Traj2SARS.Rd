@@ -21,8 +21,8 @@ The function \code{Traj2SARS()} converts a trajectory object to a SARS object.
 }
 \details{
 The interpreter function \code{Interpreter(actions, observations)} takes the history
-information up to certain time step, and outputs a list of (state, action, reward).
-Specifically, the history information contains partial trajectory:
+information up to certain time step, and outputs a list of (state, reward). Specifically,
+the history information is partial trajectory:
 \deqn{O_1, A_1, O_2, A_2, \ldots, O_t, A_t, O_{t+1}}
 }
 \examples{
@@ -30,15 +30,14 @@ observations <- list(0, -1, -1, 0, 1, 1)
 actions <- list(-1, 1, 1, 0, -1)
 traj <- Traj(observations, actions)
 Interpreter <- function(actions, observations) {
-  n <- length(actions)
-  if (n > 0) {
-    state <- c(observations[[n]], observations[[n + 1]])
-    action <- actions[[n]]
-    reward <- 1 - state[2]^2
-  } else {
-    state <- action <- reward <- NULL
-  }
-  return(list(state = state, action = action, reward = reward))
+n <- length(actions)
+if (n > 0) {
+  state <- c(observations[[n]], observations[[n + 1]])
+  reward <- 1 - state[2]^2
+} else {
+  state <- reward <- NULL
+}
+return(list(state = state, reward = reward))
 }
 Traj2SARS(traj, Interpreter, skip = 1)
 }
