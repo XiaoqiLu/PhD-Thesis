@@ -338,17 +338,17 @@ Soft <- function(z, lambda=0){
   return(sign(z) * pmax(abs(z) - lambda, 0))
 }
 
-#' #' Proximal Mapping for Elastic Net
-#' #'
-#' #' @param z input numeric object
-#' #' @param lambda regularization coefficient
-#' #' @param alpha elastic net mixing parameter between 0 (ridge) and 1 (lasso)
-#' #'
-#' #' @return values after proximal mapping
-#' #' @export
-#' #'
-#' #' @examples
-#' #' ProximalElastic(c(-1, 0, 2, 3), 1)
-#' ProximalElastic <- function(z, lambda=0, alpha=1){
-#'   return((1 + lambda * (1 - alpha)) * Soft(z, lambda * alpha))
-#' }
+#' Proximal Mapping for Elastic Net
+#'
+#' @param z input numeric object
+#' @param lambda regularization coefficient
+#' @param alpha elastic net mixing parameter between 0 (ridge) and 1 (lasso)
+#'
+#' @return values after proximal mapping
+#' @export
+#'
+#' @examples
+#' ProximalElastic(c(-1, 0, 2, 3), 1)
+ProximalElastic <- function(z, lambda=0, alpha=1){
+  return(Soft(z, lambda * alpha) / (1 + lambda * (1 - alpha)))
+}

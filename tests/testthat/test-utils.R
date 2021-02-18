@@ -167,7 +167,7 @@ test_that("Soft() works", {
   expect_equal(Soft(c(-1, 0, 2, 3), lambda = 1), c(0, 0, 1, 2))
 })
 
-# test_that("ProximalElastic() works", {
-#   expect_equal(ProximalElastic(c(-1, 0, 2, 3), lambda = 1, alpha = 1), c(0, 0, 1, 2))
-#   expect_equal(ProximalElastic(c(-1, 0, 2, 3), lambda = 1, alpha = 0), c(-1, 0, 2, 3) / 2)
-# })
+test_that("ProximalElastic() works", {
+  expect_equal(ProximalElastic(c(-1, 0, 2, 3), lambda = 1, alpha = 1), c(0, 0, 1, 2))
+  expect_equal(ProximalElastic(c(-1, 0, 2, 3), lambda = 1, alpha = 0), c(-1, 0, 2, 3) / 2)
+})
