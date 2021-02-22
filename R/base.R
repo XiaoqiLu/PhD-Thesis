@@ -43,7 +43,11 @@
 #' states_next <- matrix(c(2, 3, 4, 5), 2, 2)
 #' ss <- SARS(states, actions, rewards, states_next)
 #' ss
-SARS <- function(states, actions, rewards, states_next, ids = NA) {
+SARS <- function(states,
+                 actions,
+                 rewards,
+                 states_next,
+                 ids = NA) {
   states <- as.matrix(states)
   actions <- as.matrix(actions)
   rewards <- as.matrix(rewards)
@@ -103,17 +107,22 @@ SARS <- function(states, actions, rewards, states_next, ids = NA) {
 BindSARS <- function(sars_list, ids = NULL) {
   if (!is.null(ids)) {
     for (i in seq_along(sars_list)) {
-      sars_list[[i]]$ids <- matrix(ids[i], nrow = sars_list[[i]]$n, ncol = 1)
+      sars_list[[i]]$ids <-
+        matrix(ids[i], nrow = sars_list[[i]]$n, ncol = 1)
     }
   }
   Extract <- function(name) {
-    lapply(sars_list, function(ss){ss[[name]]})
+    lapply(sars_list, function(ss) {
+      ss[[name]]
+    })
   }
-  sars <- SARS(do.call(rbind, Extract("states")),
-               do.call(rbind, Extract("actions")),
-               do.call(rbind, Extract("rewards")),
-               do.call(rbind, Extract("states_next")),
-               ids = do.call(rbind, Extract("ids")))
+  sars <- SARS(
+    do.call(rbind, Extract("states")),
+    do.call(rbind, Extract("actions")),
+    do.call(rbind, Extract("rewards")),
+    do.call(rbind, Extract("states_next")),
+    ids = do.call(rbind, Extract("ids"))
+  )
   return(sars)
 }
 
@@ -189,14 +198,14 @@ Traj <- function(observations, actions) {
 #' actions <- list(-1, 1, 1, 0, -1)
 #' traj <- Traj(observations, actions)
 #' Interpreter <- function(actions, observations) {
-#' n <- length(actions)
-#' if (n > 0) {
-#'   state <- c(observations[[n]], observations[[n + 1]])
-#'   reward <- 1 - state[2]^2
-#' } else {
-#'   state <- reward <- NULL
-#' }
-#' return(list(state = state, reward = reward))
+#'   n <- length(actions)
+#'   if (n > 0) {
+#'     state <- c(observations[[n]], observations[[n + 1]])
+#'     reward <- 1 - state[2]^2
+#'   } else {
+#'     state <- reward <- NULL
+#'   }
+#'   return(list(state = state, reward = reward))
 #' }
 #' Traj2SARS(traj, Interpreter, skip = 1)
 Traj2SARS <- function(traj, Interpreter, skip = 0) {
@@ -208,22 +217,28 @@ Traj2SARS <- function(traj, Interpreter, skip = 0) {
     return(NULL)
   }
 
-  state_reward <- Interpreter(traj$actions[seq_len(skip)],
-                                     traj$observations[seq_len(skip + 1)])
+  state_reward <- Interpreter(
+    traj$actions[seq_len(skip)],
+    traj$observations[seq_len(skip + 1)]
+  )
   states_all <- state_reward$state
   actions <- rewards <- NULL
-  for (i in (skip + 1) : traj$n) {
-    state_reward <- Interpreter(traj$actions[seq_len(i)],
-                                       traj$observations[seq_len(i + 1)])
+  for (i in (skip + 1):traj$n) {
+    state_reward <- Interpreter(
+      traj$actions[seq_len(i)],
+      traj$observations[seq_len(i + 1)]
+    )
     states_all <- rbind(states_all, state_reward$state)
     rewards <- rbind(rewards, state_reward$reward)
     actions <- rbind(actions, traj$actions[[i]])
   }
   n <- traj$n - skip
-  SARS(states_all[1 : n, , drop = FALSE],
-       actions,
-       rewards,
-       states_all[2 : (n + 1), , drop = FALSE])
+  SARS(
+    states_all[1:n, , drop = FALSE],
+    actions,
+    rewards,
+    states_all[2:(n + 1), , drop = FALSE]
+  )
 }
 
 #' Environment Object
@@ -244,7 +259,8 @@ Traj2SARS <- function(traj, Interpreter, skip = 0) {
 #'
 #' @examples
 #' Env(1)
-Env <- function(internal_state = 0, rng_state = .Random.seed) {
+Env <- function(internal_state = 0,
+                rng_state = .Random.seed) {
   structure(list(internal_state = internal_state, rng_state = rng_state),
     class = "Env"
   )

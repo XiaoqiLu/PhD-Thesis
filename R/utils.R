@@ -172,23 +172,23 @@ CumReward <- function(rewards, discount) {
 #' @export
 #'
 #' @examples
-#' x <- cbind(c(0, 1, 0, 1), 1 : 4)
+#' x <- cbind(c(0, 1, 0, 1), 1:4)
 #' Poly(x, degree = 2)
-Poly <- function(x, degree=1, interaction_only=TRUE, include_bias=TRUE){
+Poly <- function(x, degree = 1, interaction_only = TRUE, include_bias = TRUE) {
   if (!is.matrix(x)) {
     stop("`x` should be a matrix")
   }
   n <- nrow(x)
   m <- ncol(x)
-  if (include_bias){
+  if (include_bias) {
     z <- matrix(1, n, 1)
-  } else{
+  } else {
     z <- NULL
   }
-  .Power <- function(idx){
+  .Power <- function(idx) {
     return(apply(x[, idx, drop = FALSE], 1, prod))
   }
-  for (d in 1 : degree){
+  for (d in 1:degree) {
     combs <- arrangements::combinations(m, d, replace = !interaction_only)
     z <- cbind(z, matrix(apply(combs, 1, .Power), nrow = n))
   }
@@ -207,13 +207,14 @@ Poly <- function(x, degree=1, interaction_only=TRUE, include_bias=TRUE){
 #' @export
 #'
 #' @examples
-#' x <- cbind(rep(1, 3), 1 : 3)
-#' y <- matrix(c(1, 0,
-#'               0, 1,
-#'               1, 1), 3, 2, byrow = TRUE)
-#'  RowWiseKronecker(x, y)
-
-RowWiseKronecker <- function(x, y){
+#' x <- cbind(rep(1, 3), 1:3)
+#' y <- matrix(c(
+#'   1, 0,
+#'   0, 1,
+#'   1, 1
+#' ), 3, 2, byrow = TRUE)
+#' RowWiseKronecker(x, y)
+RowWiseKronecker <- function(x, y) {
   if (!is.matrix(x)) {
     stop("`x` should be a matrix")
   }
@@ -242,10 +243,10 @@ RowWiseKronecker <- function(x, y){
 #' @export
 #'
 #' @examples
-#' Gaussian(0 : 6, scale = 2)
+#' Gaussian(0:6, scale = 2)
 Gaussian <- function(r, scale = 1) {
   z <- r / scale
-  exp(- z^2)
+  exp(-z^2)
 }
 
 #' @describeIn Gaussian \eqn{\sqrt{1 + r^2}}
@@ -274,7 +275,7 @@ InverseMultiquadric <- function(r, scale = 1) {
 #' @export
 Bump <- function(r, scale = 1) {
   z <- r / scale
-  ifelse(z < 1, exp(- 1 / (1 - z^2)), 0)
+  ifelse(z < 1, exp(-1 / (1 - z^2)), 0)
 }
 
 #' Radial Basis Function
@@ -298,7 +299,7 @@ Bump <- function(r, scale = 1) {
 #' x <- matrix(rnorm(20), 10, 2)
 #' centers <- kmeans(x, 2)$centers
 #' RBF(x, centers)
-RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias=TRUE, normalize=FALSE) {
+RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias = TRUE, normalize = FALSE) {
   if (!is.matrix(x)) {
     stop("`x` should be a matrix")
   }
@@ -313,9 +314,13 @@ RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias=TRUE, nor
   k <- nrow(centers)
 
   phi <- matrix(NA, n, k)
-  for (j in 1 : k) {
-    phi[, j] <- apply(x - matrix(centers[j, ], n, m, byrow = TRUE), 1,
-                      function(z){Kernel(sqrt(sum(z^2)), scale = scale)})
+  for (j in 1:k) {
+    phi[, j] <- apply(
+      x - matrix(centers[j, ], n, m, byrow = TRUE), 1,
+      function(z) {
+        Kernel(sqrt(sum(z^2)), scale = scale)
+      }
+    )
   }
 
   if (normalize) {
@@ -339,7 +344,7 @@ RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias=TRUE, nor
 #'
 #' @examples
 #' Soft(c(-1, 0, 2, 3), 1)
-Soft <- function(z, lambda=0){
+Soft <- function(z, lambda = 0) {
   return(sign(z) * pmax(abs(z) - lambda, 0))
 }
 
@@ -354,6 +359,6 @@ Soft <- function(z, lambda=0){
 #'
 #' @examples
 #' ProximalElastic(c(-1, 0, 2, 3), 1)
-ProximalElastic <- function(z, lambda=0, alpha=1){
+ProximalElastic <- function(z, lambda = 0, alpha = 1) {
   return(Soft(z, lambda * alpha) / (1 + lambda * (1 - alpha)))
 }

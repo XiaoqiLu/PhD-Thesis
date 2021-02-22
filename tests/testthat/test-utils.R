@@ -127,7 +127,7 @@ test_that("CumReward() works", {
 })
 
 test_that("Poly() works", {
-  x <- cbind(c(0, 1, 0, 1), 1 : 4)
+  x <- cbind(c(0, 1, 0, 1), 1:4)
   expect_equal(Poly(x, degree = 1, interaction_only = FALSE, include_bias = FALSE), x)
   expect_equal(Poly(x, degree = 1, interaction_only = TRUE, include_bias = FALSE), x)
   expect_equal(Poly(x, degree = 1, include_bias = TRUE), cbind(1, x))
@@ -136,13 +136,17 @@ test_that("Poly() works", {
 })
 
 test_that("RowWiseKronecker() works", {
-  x <- cbind(rep(1, 3), 1 : 3)
-  y <- matrix(c(1, 0,
-                0, 1,
-                1, 1), 3, 2, byrow = TRUE)
-  expect_equal(RowWiseKronecker(x, y), matrix(c(1, 1, 0, 0,
-                                                0, 0, 1, 2,
-                                                1, 3, 1, 3), 3, 4, byrow = TRUE))
+  x <- cbind(rep(1, 3), 1:3)
+  y <- matrix(c(
+    1, 0,
+    0, 1,
+    1, 1
+  ), 3, 2, byrow = TRUE)
+  expect_equal(RowWiseKronecker(x, y), matrix(c(
+    1, 1, 0, 0,
+    0, 0, 1, 2,
+    1, 3, 1, 3
+  ), 3, 4, byrow = TRUE))
 })
 
 test_that("Radial Kernels work", {
@@ -150,24 +154,34 @@ test_that("Radial Kernels work", {
   expect_equal(Multiquadric(c(0, 2), scale = 2), c(1, sqrt(2)))
   expect_equal(InverseQuadratic(c(0, 2), scale = 2), c(1, 1 / 2))
   expect_equal(InverseMultiquadric(c(0, 2), scale = 2), c(1, 1 / sqrt(2)))
-  expect_equal(Bump(c(0, 1, 2, 4), scale = 2), c(exp(-1), exp(- 4 / 3), 0, 0))
+  expect_equal(Bump(c(0, 1, 2, 4), scale = 2), c(exp(-1), exp(-4 / 3), 0, 0))
 })
 
 test_that("RBF() works", {
-  expect_equal(RBF(matrix(c(0, 1, 3, 4), 4, 1),
-                   matrix(c(0.5, 3.5), 2, 1),
-                   Kernel = Bump, scale = 2, include_bias = FALSE),
-               matrix(c(exp(- 16 / 15), 0,
-                        exp(- 16 / 15), 0,
-                        0, exp(- 16 / 15),
-                        0, exp(- 16 / 15)), 4, 2, byrow = TRUE))
-  expect_equal(RBF(matrix(c(0, 1, 3, 4), 4, 1),
-                   matrix(c(0.5, 3.5), 2, 1),
-                   Kernel = Bump, scale = 2, include_bias = TRUE, normalize = TRUE),
-               matrix(c(1, 1, 0,
-                        1, 1, 0,
-                        1, 0, 1,
-                        1, 0, 1), 4, 3, byrow = TRUE))
+  expect_equal(
+    RBF(matrix(c(0, 1, 3, 4), 4, 1),
+      matrix(c(0.5, 3.5), 2, 1),
+      Kernel = Bump, scale = 2, include_bias = FALSE
+    ),
+    matrix(c(
+      exp(-16 / 15), 0,
+      exp(-16 / 15), 0,
+      0, exp(-16 / 15),
+      0, exp(-16 / 15)
+    ), 4, 2, byrow = TRUE)
+  )
+  expect_equal(
+    RBF(matrix(c(0, 1, 3, 4), 4, 1),
+      matrix(c(0.5, 3.5), 2, 1),
+      Kernel = Bump, scale = 2, include_bias = TRUE, normalize = TRUE
+    ),
+    matrix(c(
+      1, 1, 0,
+      1, 1, 0,
+      1, 0, 1,
+      1, 0, 1
+    ), 4, 3, byrow = TRUE)
+  )
 })
 
 test_that("Soft() works", {

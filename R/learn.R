@@ -29,7 +29,7 @@
 #'   return(phi)
 #' }
 #' SARS2Phis(sars, list(0, 1), Feature)
-SARS2Phis <- function(sars, action_space, Feature){
+SARS2Phis <- function(sars, action_space, Feature) {
   if (!inherits(sars, "SARS")) {
     stop("`sars` should be a `SARS` object")
   }
@@ -37,7 +37,7 @@ SARS2Phis <- function(sars, action_space, Feature){
   n <- nrow(sars$states)
   phi <- Feature(sars$states, sars$actions)
   phi_next_list <- vector("list", length(action_space))
-  for (i_action in seq_along(action_space)){
+  for (i_action in seq_along(action_space)) {
     action_next <- action_space[[i_action]]
     actions_next <- matrix(rep(action_next, n), nrow = n, byrow = TRUE)
     phi_next_list[[i_action]] <- Feature(sars$states_next, actions_next)
@@ -56,10 +56,14 @@ SARS2Phis <- function(sars, action_space, Feature){
 #'
 #' @return a (non-negative) number
 #' @export
-MSPBE <- function(theta, phis, discount){
+MSPBE <- function(theta, phis, discount) {
   q <- phis$phi %*% theta
-  qs_next <- lapply(phis$phi_next_list,
-                    function(phi_next){phi_next %*% theta})
+  qs_next <- lapply(
+    phis$phi_next_list,
+    function(phi_next) {
+      phi_next %*% theta
+    }
+  )
   q_next <- do.call(pmax, qs_next)
   delta <- phis$r + discount * q_next - q
 
@@ -70,10 +74,14 @@ MSPBE <- function(theta, phis, discount){
 
 #' @describeIn MSPBE Mean Squared Bellman Error
 #' @export
-MSBE <- function(theta, phis, discount){
+MSBE <- function(theta, phis, discount) {
   q <- phis$phi %*% theta
-  qs_next <- lapply(phis$phi_next_list,
-                    function(phi_next){phi_next %*% theta})
+  qs_next <- lapply(
+    phis$phi_next_list,
+    function(phi_next) {
+      phi_next %*% theta
+    }
+  )
   q_next <- do.call(pmax, qs_next)
   delta <- phis$r + discount * q_next - q
 
@@ -88,43 +96,63 @@ MSBE <- function(theta, phis, discount){
 #'
 #' @return gradient
 #' @export
-GradientFQI <- function(theta, phis, discount){
+GradientFQI <- function(theta, phis, discount) {
   q <- phis$phi %*% theta
-  qs_next <- lapply(phis$phi_next_list,
-                    function(phi_next){phi_next %*% theta})
+  qs_next <- lapply(
+    phis$phi_next_list,
+    function(phi_next) {
+      phi_next %*% theta
+    }
+  )
   q_next <- do.call(pmax, qs_next)
 
-  g <- - t(phis$phi) %*% (phis$r + discount * q_next - phis$phi %*% theta) / phis$n
+  g <- -t(phis$phi) %*% (phis$r + discount * q_next - phis$phi %*% theta) / phis$n
   return(g)
 }
 
 #' @describeIn GradientFQI Greedy Gradient-Q (objective function: MSPBE)
 #' @export
-GradientGGQ <- function(theta, phis, discount){
+GradientGGQ <- function(theta, phis, discount) {
   q <- phis$phi %*% theta
-  qs_next <- sapply(phis$phi_next_list,
-                    function(phi_next){phi_next %*% theta})
+  qs_next <- sapply(
+    phis$phi_next_list,
+    function(phi_next) {
+      phi_next %*% theta
+    }
+  )
   idx_next <- apply(qs_next, 1, which.max)
   q_next <- matrix(qs_next[cbind(seq_along(idx_next), idx_next)], ncol = 1)
-  phi_next <- t(apply(cbind(seq_along(idx_next), idx_next), 1,
-                      function(ii){return(phis$phi_next_list[[ii[2]]][ii[1], ])}))
+  phi_next <- t(apply(
+    cbind(seq_along(idx_next), idx_next), 1,
+    function(ii) {
+      return(phis$phi_next_list[[ii[2]]][ii[1], ])
+    }
+  ))
   delta <- phis$r + discount * q_next - q
 
   w <- MASS::ginv(phis$phi) %*% delta
-  g <- - (t(phis$phi) %*% delta - discount * (t(phi_next) %*% (phis$phi %*% w))) / phis$n
+  g <- -(t(phis$phi) %*% delta - discount * (t(phi_next) %*% (phis$phi %*% w))) / phis$n
   return(g)
 }
 
 #' @describeIn GradientFQI Bellman Error Minimization (objective function: MSBE)
 #' @export
-GradientBEM <- function(theta, phis, discount){
+GradientBEM <- function(theta, phis, discount) {
   q <- phis$phi %*% theta
-  qs_next <- sapply(phis$phi_next_list,
-                    function(phi_next){phi_next %*% theta})
+  qs_next <- sapply(
+    phis$phi_next_list,
+    function(phi_next) {
+      phi_next %*% theta
+    }
+  )
   idx_next <- apply(qs_next, 1, which.max)
   q_next <- matrix(qs_next[cbind(seq_along(idx_next), idx_next)], ncol = 1)
-  phi_next <- t(apply(cbind(seq_along(idx_next), idx_next), 1,
-                      function(ii){return(phis$phi_next_list[[ii[2]]][ii[1], ])}))
+  phi_next <- t(apply(
+    cbind(seq_along(idx_next), idx_next), 1,
+    function(ii) {
+      return(phis$phi_next_list[[ii[2]]][ii[1], ])
+    }
+  ))
   delta <- phis$r + discount * q_next - q
 
   g <- t(discount * phi_next - phis$phi) %*% delta / phis$n
@@ -148,26 +176,36 @@ GradientBEM <- function(theta, phis, discount){
 #' @export
 #'
 #' @seealso \code{\link{SARS2Phis}}, \code{\link{MSPBE}}, \code{\link{GradientFQI}}
-BatchGradientQ <- function(phis, discount, method="FQI", loss=NULL, lambda=0, alpha=1,
-                           theta=NULL, learning_rate=1.0, max_iter=1000, tol=1e-3,
-                           accelerate=TRUE){
+BatchGradientQ <- function(phis, discount, method = "FQI", loss = NULL, lambda = 0, alpha = 1,
+                           theta = NULL, learning_rate = 1.0, max_iter = 1000, tol = 1e-3,
+                           accelerate = TRUE) {
   Gradient <- switch(method,
-                     "FQI" = function(theta){return(GradientFQI(theta, phis, discount))},
-                     "GGQ" = function(theta){return(GradientGGQ(theta, phis, discount))},
-                     "BEM" = function(theta){return(GradientBEM(theta, phis, discount))}
+    "FQI" = function(theta) {
+      return(GradientFQI(theta, phis, discount))
+    },
+    "GGQ" = function(theta) {
+      return(GradientGGQ(theta, phis, discount))
+    },
+    "BEM" = function(theta) {
+      return(GradientBEM(theta, phis, discount))
+    }
   )
-  if (is.null(loss)){
+  if (is.null(loss)) {
     loss <- switch(method,
-                   "FQI" = "MSPBE",
-                   "GGQ" = "MSPBE",
-                   "BEM" = "MSBE",
+      "FQI" = "MSPBE",
+      "GGQ" = "MSPBE",
+      "BEM" = "MSBE",
     )
   }
   Loss <- switch(loss,
-                 MSPBE = function(theta){return(MSPBE(theta, phis, discount))},
-                 MSBE = function(theta){return(MSBE(theta, phis, discount))}
+    MSPBE = function(theta) {
+      return(MSPBE(theta, phis, discount))
+    },
+    MSBE = function(theta) {
+      return(MSBE(theta, phis, discount))
+    }
   )
-  if (is.null(theta)){
+  if (is.null(theta)) {
     theta <- matrix(0, ncol(phis$phi), 1)
   }
 
@@ -177,34 +215,38 @@ BatchGradientQ <- function(phis, discount, method="FQI", loss=NULL, lambda=0, al
   momentum <- 0 * theta
   t_acc <- 0
   convergence <- 1 # maxit reached
-  while (n_iter < max_iter){
+  while (n_iter < max_iter) {
     n_iter <- n_iter + 1
     theta_prev <- theta
     value_prev <- value
-    if (accelerate){
+    if (accelerate) {
       t_acc <- (1 + sqrt(1 + 4 * t_acc^2)) / 2
       weight_acc <- (t_acc - 1) / (t_acc + 1)
-    } else{
+    } else {
       weight_acc <- 0
     }
     theta_acc <- theta + weight_acc * momentum
     g_acc <- Gradient(theta_acc)
-    theta <- ProximalElastic(theta_acc - step_size * g_acc,
-                             step_size * lambda,
-                             alpha)
+    theta <- ProximalElastic(
+      theta_acc - step_size * g_acc,
+      step_size * lambda,
+      alpha
+    )
     momentum <- theta - theta_prev
     value <- Loss(theta)
-    if (sqrt(sum(momentum^2)) > 1 / tol){
+    if (sqrt(sum(momentum^2)) > 1 / tol) {
       convergence <- 2 # diverged
       break
-    } else if (abs(value - value_prev) < tol * (abs(value_prev) + tol)){
+    } else if (abs(value - value_prev) < tol * (abs(value_prev) + tol)) {
       convergence <- 0 # converged
       break
     }
   }
 
-  return(list(theta = theta, value = value, method = method, loss = loss,
-              n_iter = n_iter, convergence = convergence))
+  return(list(
+    theta = theta, value = value, method = method, loss = loss,
+    n_iter = n_iter, convergence = convergence
+  ))
 }
 
 #' #' Batch Gradient Q-Learning with Cross-Validation
