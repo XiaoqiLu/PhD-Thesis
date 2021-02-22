@@ -4,7 +4,14 @@
 \alias{RBF}
 \title{Radial Basis Function}
 \usage{
-RBF(x, centers, Kernel = Gaussian, scale = 1, include_bias = TRUE)
+RBF(
+  x,
+  centers,
+  Kernel = Gaussian,
+  scale = 1,
+  include_bias = TRUE,
+  normalize = FALSE
+)
 }
 \arguments{
 \item{x}{a data matrix, where rows are observations and columns are dimensions.}
@@ -16,6 +23,8 @@ RBF(x, centers, Kernel = Gaussian, scale = 1, include_bias = TRUE)
 \item{scale}{scale parameter, or bandwidth}
 
 \item{include_bias}{if \code{TRUE}, include a column of ones}
+
+\item{normalize}{if \code{TRUE}, features (expect for bias) are normalized}
 }
 \value{
 transformed matrix

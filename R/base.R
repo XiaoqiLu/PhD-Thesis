@@ -9,6 +9,7 @@
 #' @param actions a numeric matrix for actions.
 #' @param rewards a numeric column vector for rewards.
 #' @param states_next a numeric matrix for next states.
+#' @param ids a numeric column vector for ids.
 #'
 #' @return a SARS object (`class = "SARS"`)
 #' @export
@@ -42,7 +43,7 @@
 #' states_next <- matrix(c(2, 3, 4, 5), 2, 2)
 #' ss <- SARS(states, actions, rewards, states_next)
 #' ss
-SARS <- function(states, actions, rewards, states_next) {
+SARS <- function(states, actions, rewards, states_next, ids = NA) {
   states <- as.matrix(states)
   actions <- as.matrix(actions)
   rewards <- as.matrix(rewards)
@@ -68,16 +69,52 @@ SARS <- function(states, actions, rewards, states_next) {
     stop("inconsistent number of columns")
   }
 
+  # make sure ids is of the correct size
+  ids <- matrix(ids, nrow = n, ncol = 1)
+
   structure(
     list(
       states = states,
       actions = actions,
       rewards = rewards,
       states_next = states_next,
-      n = n
+      n = n,
+      ids = ids
     ),
     class = "SARS"
   )
+}
+
+#' Bind a List of SARS Objects
+#'
+#' @param sars_list a list of SARS object to be combined
+#' @param ids a numeric vector (not a list!) for id of each SARS object
+#'
+#' @return a SARS object with an extra id vector as attributes
+#' @export
+#'
+#' @examples
+#' states <- matrix(c(1, 2, 3, 4), 2, 2)
+#' actions <- matrix(c(1, 0), 2, 1)
+#' rewards <- matrix(c(1, 2), 2, 1)
+#' states_next <- matrix(c(2, 3, 4, 5), 2, 2)
+#' ss <- SARS(states, actions, rewards, states_next)
+#' BindSARS(list(ss, ss, ss))
+BindSARS <- function(sars_list, ids = NULL) {
+  if (!is.null(ids)) {
+    for (i in seq_along(sars_list)) {
+      sars_list[[i]]$ids <- matrix(ids[i], nrow = sars_list[[i]]$n, ncol = 1)
+    }
+  }
+  Extract <- function(name) {
+    lapply(sars_list, function(ss){ss[[name]]})
+  }
+  sars <- SARS(do.call(rbind, Extract("states")),
+               do.call(rbind, Extract("actions")),
+               do.call(rbind, Extract("rewards")),
+               do.call(rbind, Extract("states_next")),
+               ids = do.call(rbind, Extract("ids")))
+  return(sars)
 }
 
 #' Trajectory Object

@@ -131,9 +131,26 @@ GradientBEM <- function(theta, phis, discount){
   return(g)
 }
 
+#' Batch Gradient Q-Learning
+#'
+#' @param method Q-learning method, choice of "FQI", "GGQ", and "BEM"
+#' @param loss loss function for evaluation, choice of "MSPBE" and "MSBE"
+#' @param lambda regularization coefficient
+#' @param alpha elastic net mixing parameter between 0 (ridge) and 1 (lasso)
+#' @param learning_rate learning rate for gradient descent
+#' @param max_iter maximum number of iteration
+#' @param tol tolerance level for convergence
+#' @param accelerate if `TRUE`, use accelerated proximal gradient method; otherwise
+#' use proximal gradient method.
+#' @inheritParams MSPBE
+#'
+#' @return a list of model fitting results
 #' @export
+#'
+#' @seealso \code{\link{SARS2Phis}}, \code{\link{MSPBE}}, \code{\link{GradientFQI}}
 BatchGradientQ <- function(phis, discount, method="FQI", loss=NULL, lambda=0, alpha=1,
-                           theta=NULL, learning_rate=1.0, max_iter=1000, tol=1e-3, accelerate=TRUE){
+                           theta=NULL, learning_rate=1.0, max_iter=1000, tol=1e-3,
+                           accelerate=TRUE){
   Gradient <- switch(method,
                      "FQI" = function(theta){return(GradientFQI(theta, phis, discount))},
                      "GGQ" = function(theta){return(GradientGGQ(theta, phis, discount))},
@@ -189,3 +206,71 @@ BatchGradientQ <- function(phis, discount, method="FQI", loss=NULL, lambda=0, al
   return(list(theta = theta, value = value, method = method, loss = loss,
               n_iter = n_iter, convergence = convergence))
 }
+
+#' #' Batch Gradient Q-Learning with Cross-Validation
+#' #'
+#' #' @param phis
+#' #' @param discount
+#' #' @param method
+#' #' @param loss
+#' #' @param lambdas
+#' #' @param alpha
+#' #' @param n_fold
+#' #' @param se
+#' #' @param learning_rate
+#' #' @param max_iter
+#' #' @param tol
+#' #' @param accelerate
+#' #'
+#' #' @return
+#' #' @export
+#' BatchGradientQCV <- function(phis, discount, method="FQI", loss=NULL,
+#'                              lambdas=10^seq(0,-3,length.out=31), alpha=1, n_fold=5, se=0,
+#'                              learning_rate=1.0, max_iter=1000, tol=1e-3, accelerate=TRUE){
+#'   if (is.null(loss)){
+#'     loss <- switch(method,
+#'                    FQI = "MSPBE",
+#'                    GGQ = "MSPBE",
+#'                    BEM = "MSBE"
+#'     )
+#'   }
+#'   LossVal <- switch(loss,
+#'                     MSPBE = function(theta, phis){return(MSPBE(theta, phis, discount))},
+#'                     MSBE = function(theta, phis){return(MSBE(theta, phis, discount))},
+#'                     NEU = function(theta, phis){return(NEU(theta, phis, discount))}
+#'   )
+#'   lambdas <- sort(lambdas, decreasing = TRUE)
+#'   losses_tr <- losses_val <- matrix(NA, length(lambdas), n_fold)
+#'
+#'   n_traj <- length(traj)
+#'   idx_traj <- sample.int(n_traj)
+#'   for (i_fold in seq_len(n_fold)){
+#'     is_tr <- (idx_traj %% n_fold != (i_fold - 1))
+#'     traj_tr <- traj[is_tr]
+#'     traj_val <- traj[!is_tr]
+#'     phis_val <- SARS2Phis(Traj2SARS(traj_val, burn_in), action_space, Feature)
+#'
+#'     theta <- matrix(0, ncol(phis_val$phi), 1)
+#'     for (i_lambda in seq_along(lambdas)){
+#'       lambda <- lambdas[i_lambda]
+#'       fit <- BatchGradientQ(traj_tr, discount, action_space, Feature, burn_in,
+#'                             method, loss, lambda, alpha, theta,
+#'                             learning_rate, max_iter, tol, accelerate)
+#'       theta <- fit$theta
+#'       losses_tr[i_lambda, i_fold] <- fit$value
+#'       losses_val[i_lambda, i_fold] <- LossVal(theta, phis_val)
+#'     }
+#'   }
+#'
+#'   mean_losses_val <- apply(losses_val, 1, mean)
+#'   se_losses_val <- apply(losses_val, 1, sd) / sqrt(n_fold)
+#'   i_best_lambda <- which.min(mean_losses_val)
+#'   se_rule <- mean_losses_val[i_best_lambda] + se * se_losses_val[i_best_lambda]
+#'   i_best_lambda <- which.max(mean_losses_val <= se_rule)
+#'   best_lambda <- lambdas[i_best_lambda]
+#'   best_fit <- BatchGradientQ(traj, discount, action_space, Feature, burn_in,
+#'                              method, loss, best_lambda, alpha, NULL,
+#'                              learning_rate, max_iter, tol, accelerate)
+#'
+#'   return(list(lambdas = lambdas, losses_tr = losses_tr, losses_val = losses_val, best_lambda = best_lambda, best_fit = best_fit))
+#' }

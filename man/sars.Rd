@@ -4,7 +4,7 @@
 \alias{SARS}
 \title{SARS Object}
 \usage{
-SARS(states, actions, rewards, states_next)
+SARS(states, actions, rewards, states_next, ids = NA)
 }
 \arguments{
 \item{states}{a numeric matrix for states, each row for each time step.}
@@ -14,6 +14,8 @@ SARS(states, actions, rewards, states_next)
 \item{rewards}{a numeric column vector for rewards.}
 
 \item{states_next}{a numeric matrix for next states.}
+
+\item{ids}{a numeric column vector for ids.}
 }
 \value{
 a SARS object (\code{class = "SARS"})

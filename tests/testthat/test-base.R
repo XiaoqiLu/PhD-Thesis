@@ -59,6 +59,32 @@ test_that("SARS() gives error if dimensions of states and states_next are not co
   )
 })
 
+test_that("SARS() new ids attribute is working correctly", {
+  states <- matrix(c(1, 2, 3, 4), 2, 2)
+  actions <- matrix(c(1, 0), 2, 1)
+  rewards <- matrix(c(1, 2), 2, 1)
+  states_next <- matrix(c(2, 3, 4, 5), 2, 2)
+  expect_true(all(is.na(SARS(states, actions, rewards, states_next)$ids)))
+  expect_equal(SARS(states, actions, rewards, states_next, ids = 1:2)$ids,
+               matrix(1:2, 2, 1))
+})
+
+test_that("BindSARS() works", {
+  states <- matrix(c(1, 2, 3, 4), 2, 2)
+  actions <- matrix(c(1, 0), 2, 1)
+  rewards <- matrix(c(1, 2), 2, 1)
+  states_next <- matrix(c(2, 3, 4, 5), 2, 2)
+  ss_list <- lapply(1 : 3,
+                    function(id){SARS(states, actions, rewards, states_next,
+                                      ids = id)})
+  ss_bind <- BindSARS(ss_list)
+  ss_bind2 <- BindSARS(ss_list, 2 : 4)
+  expect_s3_class(ss_bind, "SARS")
+  expect_equal(ss_bind$n, 6)
+  expect_equal(ss_bind$ids, matrix(c(1, 1, 2, 2, 3, 3), 6, 1))
+  expect_equal(ss_bind2$ids, matrix(c(2, 2, 3, 3, 4, 4), 6, 1))
+})
+
 test_that("Traj() works", {
   observations <- list(0, -1, -1, 0, 1, 1)
   actions <- list(-1, 1, 1, 0, -1)

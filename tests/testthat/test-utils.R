@@ -161,6 +161,13 @@ test_that("RBF() works", {
                         exp(- 16 / 15), 0,
                         0, exp(- 16 / 15),
                         0, exp(- 16 / 15)), 4, 2, byrow = TRUE))
+  expect_equal(RBF(matrix(c(0, 1, 3, 4), 4, 1),
+                   matrix(c(0.5, 3.5), 2, 1),
+                   Kernel = Bump, scale = 2, include_bias = TRUE, normalize = TRUE),
+               matrix(c(1, 1, 0,
+                        1, 1, 0,
+                        1, 0, 1,
+                        1, 0, 1), 4, 3, byrow = TRUE))
 })
 
 test_that("Soft() works", {

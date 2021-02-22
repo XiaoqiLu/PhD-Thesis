@@ -11,7 +11,7 @@ AgentQ <- function(observation) {
                            outer(-1, c(-1, 1), "=="))
   phip <- RowWiseKronecker(Poly(matrix(observation, nrow = 1), 3, interaction_only = TRUE),
                            outer(1, c(-1, 1), "=="))
-  c(-1, 1)[Gibbs(c(phin %*% res$theta, phip %*% res$theta), temperature = 0.1)]
+  c(-1, 1)[EpsilonGreedy(c(phin %*% res$theta, phip %*% res$theta), epsilon = 0.02)]
 }
 
 trajs <- vector("list", n_traj)
@@ -23,7 +23,7 @@ IsTerminated <- function(observation) {
 Interpreter <- function(actions, observations) {
   n <- length(actions)
   state <- observations[[n + 1]]
-  reward <- Bump(abs(state[1]), 2.4) * Bump(abs(state[3]), 12 / 180 * pi)
+  reward <- Gaussian(abs(state[1]), 2.4) * Gaussian(abs(state[3]), 12 / 180 * pi)
   return(list(state = state, reward = reward))
 }
 
@@ -46,18 +46,12 @@ for (i_traj in 1 : n_traj) {
 }
 
 ids <- NULL
-s <- a <- r <- s_next <- NULL
+sars <- vector("list", n_traj)
 for (i_traj in 1 : n_traj) {
-  sars_i <- Traj2SARS(trajs[[i_traj]], Interpreter, skip = 0)
-
-  ids <- c(ids, rep(i_traj, sars_i$n))
-  s <- rbind(s, sars_i$states)
-  a <- rbind(a, sars_i$actions)
-  r <- rbind(r, sars_i$rewards)
-  s_next <- rbind(s_next, sars_i$states_next)
+  sars[[i_traj]] <- Traj2SARS(trajs[[i_traj]], Interpreter, skip = 0)
 }
 
-ss <- SARS(s, a, r, s_next)
+ss <- BindSARS(sars, 1 : n_traj)
 
 
 Feature <- function(states, actions) {
@@ -67,9 +61,9 @@ Feature <- function(states, actions) {
 }
 
 phis <- SARS2Phis(ss, list(-1, 1), Feature)
-mspbe <- MSPBE(rep(0, 30), phis, 0.9)
 
-res <- BatchGradientQ(phis, discount = 0.9, method = "GGQ", lambda = 0,
-                      theta = res$theta, learning_rate = 1.0)
+res <- BatchGradientQ(phis, discount = 1, method = "GGQ", lambda = 0,
+                      theta = res$theta, learning_rate = 0.1)
 print(res$theta)
 print(res$value)
+print(ss$n / n_traj)

@@ -287,6 +287,7 @@ Bump <- function(r, scale = 1) {
 #' @param Kernel radial functions
 #' @param scale scale parameter, or bandwidth
 #' @param include_bias if `TRUE`, include a column of ones
+#' @param normalize if `TRUE`, features (expect for bias) are normalized
 #'
 #' @return transformed matrix
 #' @export
@@ -297,7 +298,7 @@ Bump <- function(r, scale = 1) {
 #' x <- matrix(rnorm(20), 10, 2)
 #' centers <- kmeans(x, 2)$centers
 #' RBF(x, centers)
-RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias=TRUE) {
+RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias=TRUE, normalize=FALSE) {
   if (!is.matrix(x)) {
     stop("`x` should be a matrix")
   }
@@ -315,6 +316,10 @@ RBF <- function(x, centers, Kernel = Gaussian, scale = 1, include_bias=TRUE) {
   for (j in 1 : k) {
     phi[, j] <- apply(x - matrix(centers[j, ], n, m, byrow = TRUE), 1,
                       function(z){Kernel(sqrt(sum(z^2)), scale = scale)})
+  }
+
+  if (normalize) {
+    phi <- phi / rowSums(phi)
   }
 
   if (include_bias) {
